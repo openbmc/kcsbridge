@@ -1,0 +1,11 @@
+[Unit]
+Description=KCS Bridge Daemon
+
+[Service]
+Type=dbus
+BusName=org.openbmc.HostIpmi
+ExecStart=/bin/kcsbridged
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
