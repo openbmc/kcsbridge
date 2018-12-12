@@ -32,12 +32,13 @@
 #include <systemd/sd-bus.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define DBUS_ERR "org.openbmc.error"
-#define DBUS_NAME "org.openbmc.HostIpmi"
-#define OBJ_NAME "/org/openbmc/HostIpmi/1"
 
 #define LOG_PREFIX "KCSBRIDGED"
+#define DBUS_NAME "org.openbmc.HostIpmi."
+#define OBJ_NAME "/org/openbmc/HostIpmi/"
 
 #define KCS_TIMEOUT_IN_SEC 5
 #define KCS_MESSAGE_SIZE 256
@@ -46,6 +47,13 @@
 #define KCS_FD 1
 #define TIMER_FD 2
 #define TOTAL_FDS 3
+
+#define NAMEBUFFERLEN 50
+#define OPTMAXLEN (NAMEBUFFERLEN - sizeof(OBJ_NAME) - 1)
+
+char kcsDevice[NAMEBUFFERLEN];
+char busName[NAMEBUFFERLEN];
+char objPath[NAMEBUFFERLEN];
 
 struct kcs_msg_req {
 	uint8_t netfn;
@@ -328,7 +336,7 @@ static int dispatch_kcs(struct kcsbridged_context *context)
 	if (len < 0 || handle_kcs_request(context, data, len))
 		goto out;
 
-	r = sd_bus_message_new_signal(context->bus, &msg, OBJ_NAME, DBUS_NAME,
+	r = sd_bus_message_new_signal(context->bus, &msg, objPath, busName,
 				      "ReceivedMessage");
 	if (r < 0) {
 		MSG_ERR("Failed to create signal: %s\n", strerror(-r));
@@ -371,11 +379,12 @@ out:
 static void usage(const char *name)
 {
 	fprintf(stderr,
-		"Usage %s [--v[v] | --syslog] --d <DEVICE>\n"
-		"--v                     Be verbose\n"
-		"--vv                    Be verbose and dump entire messages\n"
-		"--s, --syslog           Log output to syslog (pointless without --verbose)\n"
-		"--d, --device <DEVICE>  use <DEVICE> file.\n\n",
+		"Usage %s [--v[v] | --syslog] --i <ID> --d <DEVICE>\n"
+		"--v                      Be verbose\n"
+		"--vv                     Be verbose and dump entire messages\n"
+		"--s, --syslog            Log output to syslog (pointless without --verbose)\n"
+		"--i, --instanceid <ID>   instance id (string type)\n"
+		"--d, --device <DEVICE>   Use <DEVICE> file.\n\n",
 		name);
 }
 
@@ -395,11 +404,12 @@ static const sd_bus_vtable ipmid_vtable[] = {
 int main(int argc, char *argv[])
 {
 	struct kcsbridged_context *context;
-	const char *kcs_bmc_device = NULL;
 	const char *name = argv[0];
+	bool deviceOptFlag = false, dbusOptFlag = false;
 	int opt, polled, r;
 	static const struct option long_options[] = {
 		{"device", required_argument, 0, 'd'},
+		{"instanceid", required_argument, 0, 'i'},
 		{"v", no_argument, &verbosity, KCS_LOG_VERBOSE},
 		{"vv", no_argument, &verbosity, KCS_LOG_DEBUG},
 		{"syslog", no_argument, 0, 's'},
@@ -418,7 +428,25 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'd':
-			kcs_bmc_device = optarg;
+			snprintf(kcsDevice, NAMEBUFFERLEN, "%s", optarg);
+			deviceOptFlag = true;
+			break;
+
+		case 'i':
+			if (sizeof(*optarg) > OPTMAXLEN) {
+				fprintf(stderr, "ID is too long!\n");
+				exit(EXIT_FAILURE);
+			}
+			if ((NULL != strstr(optarg, "."))
+			    || (NULL != strstr(optarg, "/"))) {
+				fprintf(stderr, "invalid ID!\n");
+				exit(EXIT_FAILURE);
+			}
+			snprintf(busName, NAMEBUFFERLEN, "%s%s", DBUS_NAME,
+				 optarg);
+			snprintf(objPath, NAMEBUFFERLEN, "%s%s", OBJ_NAME,
+				 optarg);
+			dbusOptFlag = true;
 			break;
 
 		case 's':
@@ -434,8 +462,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (!kcs_bmc_device) {
+	if ((false == deviceOptFlag) || (false == dbusOptFlag)) {
 		usage(name);
+		MSG_OUT("Flag: device %d dbus %d \n", deviceOptFlag,
+			dbusOptFlag);
 		exit(EXIT_FAILURE);
 	}
 
@@ -452,15 +482,15 @@ int main(int argc, char *argv[])
 	}
 
 	MSG_OUT("Registering dbus methods/signals\n");
-	r = sd_bus_add_object_vtable(context->bus, NULL, OBJ_NAME, DBUS_NAME,
+	r = sd_bus_add_object_vtable(context->bus, NULL, objPath, busName,
 				     ipmid_vtable, context);
 	if (r < 0) {
 		MSG_ERR("Failed to issue method call: %s\n", strerror(-r));
 		goto finish;
 	}
 
-	MSG_OUT("Requesting dbus name: %s\n", DBUS_NAME);
-	r = sd_bus_request_name(context->bus, DBUS_NAME,
+	MSG_OUT("Requesting dbus name: %s objpath:%s \n", busName, objPath);
+	r = sd_bus_request_name(context->bus, busName,
 				SD_BUS_NAME_ALLOW_REPLACEMENT
 					| SD_BUS_NAME_REPLACE_EXISTING);
 	if (r < 0) {
@@ -477,12 +507,12 @@ int main(int argc, char *argv[])
 		goto finish;
 	}
 
-	MSG_OUT("Opening %s\n", kcs_bmc_device);
-	context->fds[KCS_FD].fd = open(kcs_bmc_device, O_RDWR | O_NONBLOCK);
+	MSG_OUT("Opening %s\n", kcsDevice);
+	context->fds[KCS_FD].fd = open(kcsDevice, O_RDWR | O_NONBLOCK);
 	if (context->fds[KCS_FD].fd < 0) {
 		r = -errno;
-		MSG_ERR("Couldn't open %s with flags O_RDWR: %s\n",
-			kcs_bmc_device, strerror(errno));
+		MSG_ERR("Couldn't open %s with flags O_RDWR: %s\n", kcsDevice,
+			strerror(errno));
 		goto finish;
 	}
 
