@@ -32,20 +32,24 @@
 #include <systemd/sd-bus.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdbool.h>
 
-#define DBUS_ERR "org.openbmc.error"
-#define DBUS_NAME "org.openbmc.HostIpmi"
-#define OBJ_NAME "/org/openbmc/HostIpmi/1"
+#define DBUS_ERR	"org.openbmc.error"
 
-#define LOG_PREFIX "KCSBRIDGED"
+#define LOG_PREFIX	"KCSBRIDGED"
 
-#define KCS_TIMEOUT_IN_SEC 5
-#define KCS_MESSAGE_SIZE 256
+#define KCS_TIMEOUT_IN_SEC	5
+#define KCS_MESSAGE_SIZE	256
 
-#define SD_BUS_FD 0
-#define KCS_FD 1
-#define TIMER_FD 2
-#define TOTAL_FDS 3
+#define SD_BUS_FD	0
+#define KCS_FD		1
+#define TIMER_FD	2
+#define TOTAL_FDS	3
+
+#define NAMEBUFFER 50
+char kcsDevice[NAMEBUFFER];
+char busName[NAMEBUFFER];
+char objPath[NAMEBUFFER];
 
 struct kcs_msg_req {
 	uint8_t netfn;
@@ -328,8 +332,7 @@ static int dispatch_kcs(struct kcsbridged_context *context)
 	if (len < 0 || handle_kcs_request(context, data, len))
 		goto out;
 
-	r = sd_bus_message_new_signal(context->bus, &msg, OBJ_NAME, DBUS_NAME,
-				      "ReceivedMessage");
+	r = sd_bus_message_new_signal(context->bus, &msg, objPath, busName, "ReceivedMessage");
 	if (r < 0) {
 		MSG_ERR("Failed to create signal: %s\n", strerror(-r));
 		goto out;
@@ -370,12 +373,13 @@ out:
 
 static void usage(const char *name)
 {
-	fprintf(stderr,
-		"Usage %s [--v[v] | --syslog] --d <DEVICE>\n"
-		"--v                     Be verbose\n"
-		"--vv                    Be verbose and dump entire messages\n"
-		"--s, --syslog           Log output to syslog (pointless without --verbose)\n"
-		"--d, --device <DEVICE>  use <DEVICE> file.\n\n",
+	fprintf(stderr, "Usage %s [--v[v] | --syslog] --b <BUSNAME> --o <OBJPATH> --d <DEVICE>\n"
+			"--v                      Be verbose\n"
+			"--vv                     Be verbose and dump entire messages\n"
+			"--s, --syslog            Log output to syslog (pointless without --verbose)\n"
+			"--b, --busname <BUSNAME> DBUS bus name\n"
+			"--o, --objpath <OBJPATH> DBUS obj path\n"
+			"--d, --device <DEVICE>   Use <DEVICE> file.\n\n",
 		name);
 }
 
@@ -395,15 +399,18 @@ static const sd_bus_vtable ipmid_vtable[] = {
 int main(int argc, char *argv[])
 {
 	struct kcsbridged_context *context;
-	const char *kcs_bmc_device = NULL;
 	const char *name = argv[0];
+	bool deviceOptFlag=false, busOptFlag=false, objOptFlag = false;
 	int opt, polled, r;
 	static const struct option long_options[] = {
-		{"device", required_argument, 0, 'd'},
-		{"v", no_argument, &verbosity, KCS_LOG_VERBOSE},
-		{"vv", no_argument, &verbosity, KCS_LOG_DEBUG},
-		{"syslog", no_argument, 0, 's'},
-		{0, 0, 0, 0}};
+		{ "device",  required_argument, 0,          'd'             },
+		{ "busname", required_argument, 0,          'b'             },
+		{ "objpath", required_argument, 0,          'o'             },
+		{ "v",       no_argument,       &verbosity, KCS_LOG_VERBOSE },
+		{ "vv",      no_argument,       &verbosity, KCS_LOG_DEBUG   },
+		{ "syslog",  no_argument,       0,          's'             },
+		{ 0,         0,                 0,          0               }
+	};
 
 	context = calloc(1, sizeof(*context));
 	if (!context) {
@@ -418,7 +425,21 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'd':
-			kcs_bmc_device = optarg;
+			memcpy(kcsDevice, optarg, NAMEBUFFER-1);
+			kcsDevice[NAMEBUFFER-1]='\0';
+			deviceOptFlag = true;
+			break;
+
+		case 'b':
+			memcpy(busName, optarg, NAMEBUFFER-1);
+			busName[NAMEBUFFER-1]='\0';
+			busOptFlag = true;
+			break;
+
+        case 'o':
+			memcpy(objPath, optarg, NAMEBUFFER-1);
+			objPath[NAMEBUFFER-1]='\0';
+			objOptFlag = true;
 			break;
 
 		case 's':
@@ -434,8 +455,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (!kcs_bmc_device) {
+	if ((false == deviceOptFlag) || (false == busOptFlag) || (false == objOptFlag)) {
 		usage(name);
+		MSG_OUT("Flag: device %d busname %d objpath %d\n",deviceOptFlag,busOptFlag,objOptFlag);
 		exit(EXIT_FAILURE);
 	}
 
@@ -452,17 +474,19 @@ int main(int argc, char *argv[])
 	}
 
 	MSG_OUT("Registering dbus methods/signals\n");
-	r = sd_bus_add_object_vtable(context->bus, NULL, OBJ_NAME, DBUS_NAME,
-				     ipmid_vtable, context);
+	r = sd_bus_add_object_vtable(context->bus,
+				     NULL,
+				     objPath,
+				     busName,
+				     ipmid_vtable,
+				     context);
 	if (r < 0) {
 		MSG_ERR("Failed to issue method call: %s\n", strerror(-r));
 		goto finish;
 	}
 
-	MSG_OUT("Requesting dbus name: %s\n", DBUS_NAME);
-	r = sd_bus_request_name(context->bus, DBUS_NAME,
-				SD_BUS_NAME_ALLOW_REPLACEMENT
-					| SD_BUS_NAME_REPLACE_EXISTING);
+	MSG_OUT("Requesting dbus name: %s objpath:%s \n", busName, objPath);
+	r = sd_bus_request_name(context->bus, busName, SD_BUS_NAME_ALLOW_REPLACEMENT | SD_BUS_NAME_REPLACE_EXISTING);
 	if (r < 0) {
 		MSG_ERR("Failed to acquire service name: %s\n", strerror(-r));
 		goto finish;
@@ -477,12 +501,11 @@ int main(int argc, char *argv[])
 		goto finish;
 	}
 
-	MSG_OUT("Opening %s\n", kcs_bmc_device);
-	context->fds[KCS_FD].fd = open(kcs_bmc_device, O_RDWR | O_NONBLOCK);
+	MSG_OUT("Opening %s\n", kcsDevice);
+	context->fds[KCS_FD].fd = open(kcsDevice, O_RDWR | O_NONBLOCK);
 	if (context->fds[KCS_FD].fd < 0) {
 		r = -errno;
-		MSG_ERR("Couldn't open %s with flags O_RDWR: %s\n",
-			kcs_bmc_device, strerror(errno));
+		MSG_ERR("Couldn't open %s with flags O_RDWR: %s\n", kcsDevice, strerror(errno));
 		goto finish;
 	}
 
