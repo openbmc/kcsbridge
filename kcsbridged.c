@@ -40,6 +40,9 @@
 #define DBUS_NAME "org.openbmc.HostIpmi."
 #define OBJ_NAME "/org/openbmc/HostIpmi/"
 
+#define DEFAULT_DBUS "org.openbmc.HostIpmi"
+#define DEFAULT_OBJ "/org/openbmc/HostIpmi/1"
+
 #define KCS_TIMEOUT_IN_SEC 5
 #define KCS_MESSAGE_SIZE 256
 
@@ -383,7 +386,7 @@ static void usage(const char *name)
 		"--v                      Be verbose\n"
 		"--vv                     Be verbose and dump entire messages\n"
 		"--s, --syslog            Log output to syslog (pointless without --verbose)\n"
-		"--i, --instanceid <ID>   instance id (string type)\n"
+		"--i, --instanceid <ID>   instance id (string type) optional\n"
 		"--d, --device <DEVICE>   Use <DEVICE> file.\n\n",
 		name);
 }
@@ -462,11 +465,15 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if ((false == deviceOptFlag) || (false == dbusOptFlag)) {
+	if (false == deviceOptFlag) {
 		usage(name);
-		MSG_OUT("Flag: device %d dbus %d \n", deviceOptFlag,
-			dbusOptFlag);
+		MSG_OUT("Flag: device %d \n", deviceOptFlag);
 		exit(EXIT_FAILURE);
+	}
+	if (false == dbusOptFlag) { // if --i opt is not specified, use default
+				    // setting
+		snprintf(busName, NAMEBUFFERLEN, "%s", DEFAULT_DBUS);
+		snprintf(objPath, NAMEBUFFERLEN, "%s", DEFAULT_OBJ);
 	}
 
 	if (verbosity == KCS_LOG_VERBOSE)
