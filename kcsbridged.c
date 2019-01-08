@@ -340,7 +340,7 @@ static int dispatch_kcs(struct kcsbridged_context *context)
 	if (len < 0 || handle_kcs_request(context, data, len))
 		goto out;
 
-	r = sd_bus_message_new_signal(context->bus, &msg, objPath, busName,
+	r = sd_bus_message_new_signal(context->bus, &msg, objPath, DBUS_INTF,
 				      "ReceivedMessage");
 	if (r < 0) {
 		MSG_ERR("Failed to create signal: %s\n", strerror(-r));
