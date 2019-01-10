@@ -1,0 +1,11 @@
+Code-Review+1: Yong Li <yong.b.li@intel.com>
+Code-Review+1: James Feist <james.feist@linux.intel.com>
+Code-Review+1: Richard Marian Thomaiyar <richard.marian.thomaiyar@linux.intel.com>
+Code-Review+2: Vernon Mauery <vernon.mauery@linux.intel.com>
+Ok-To-Test+1: Vernon Mauery <vernon.mauery@linux.intel.com>
+Verified+1: Jenkins <openbmc-ci-admin@ozlabs.org>
+Submitted-by: Ed Tanous <ed.tanous@intel.com>
+Submitted-at: Thu, 10 Jan 2019 16:58:05 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/17148
+Project: openbmc/kcsbridge
+Branch: refs/heads/master
