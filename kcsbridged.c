@@ -297,7 +297,17 @@ static int dispatch_sd_bus(struct kcsbridged_context *context)
 	int r = 0;
 
 	if (context->fds[SD_BUS_FD].revents) {
-		r = sd_bus_process(context->bus, NULL);
+		int temp = 0;
+		// docs say to call this in a loop until no events are left
+		// to be processed
+		do {
+			temp = sd_bus_process(context->bus, NULL);
+			if (temp)
+				r++;
+		} while (temp > 0);
+
+		if (temp < 0)
+			return temp;
 		if (r > 0)
 			MSG_OUT("Processed %d dbus events\n", r);
 	}
