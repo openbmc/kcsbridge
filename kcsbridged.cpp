@@ -177,7 +177,8 @@ static int handle_kcs_request(struct kcsbridged_context *context, uint8_t *msg,
 static int method_send_message(sd_bus_message *msg, void *userdata,
 			       sd_bus_error *err)
 {
-	struct kcsbridged_context *context = userdata;
+	struct kcsbridged_context *context =
+		static_cast<kcsbridged_context *>(userdata);
 	uint8_t netfn, lun, seqnum, cmd, cc;
 	struct kcs_msg_req *req;
 	uint8_t *data;
@@ -238,7 +239,8 @@ out:
 static int method_set_sms_atn(sd_bus_message *msg, void *userdata,
 			      sd_bus_error *err)
 {
-	struct kcsbridged_context *context = userdata;
+	struct kcsbridged_context *context =
+		static_cast<kcsbridged_context *>(userdata);
 	int r;
 
 	MSG_OUT("Sending SET_SMS_ATN\n");
@@ -257,7 +259,8 @@ static int method_set_sms_atn(sd_bus_message *msg, void *userdata,
 static int method_clear_sms_atn(sd_bus_message *msg, void *userdata,
 				sd_bus_error *err)
 {
-	struct kcsbridged_context *context = userdata;
+	struct kcsbridged_context *context =
+		static_cast<kcsbridged_context *>(userdata);
 	int r;
 
 	MSG_OUT("Sending CLEAR_SMS_ATN\n");
@@ -276,7 +279,8 @@ static int method_clear_sms_atn(sd_bus_message *msg, void *userdata,
 static int method_force_abort(sd_bus_message *msg, void *userdata,
 			      sd_bus_error *err)
 {
-	struct kcsbridged_context *context = userdata;
+	struct kcsbridged_context *context =
+		static_cast<kcsbridged_context *>(userdata);
 	int r;
 
 	MSG_OUT("Sending FORCE_ABORT\n");
@@ -424,7 +428,8 @@ int main(int argc, char *argv[])
 		{"syslog", no_argument, 0, 's'},
 		{0, 0, 0, 0}};
 
-	context = calloc(1, sizeof(*context));
+	context =
+		static_cast<kcsbridged_context *>(calloc(1, sizeof(*context)));
 	if (!context) {
 		fprintf(stderr, "OOM!\n");
 		return -1;
