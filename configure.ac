@@ -4,6 +4,8 @@ AC_INIT([kcsbridge], [1.0], [https://github.com/openbmc/kcsbridge/issues])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign dist-xz])
 AM_SILENT_RULES([yes])
+AC_LANG([C++])
+AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
 
 # Checks for programs.
 AC_PROG_CC
@@ -13,7 +15,8 @@ AC_PROG_MAKE_SET
 
 # Checks for libraries.
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd >= 221])
-
+PKG_CHECK_MODULES([SDBUSPLUS], [sdbusplus],,\
+                      AC_MSG_ERROR(["Requires sdbusplus package."]))
 # Checks for header files.
 AC_CHECK_HEADER(systemd/sd-bus.h, ,[AC_MSG_ERROR([Could not find systemd/sd-bus.h...systemd development package required])])
 AC_CHECK_HEADER(linux/ipmi_bmc.h,[HAVE_LINUX_IPMI_BMC_H=""],[HAVE_LINUX_IPMI_BMC_H="-I linux/ipmi_bmc.h"])
