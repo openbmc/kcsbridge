@@ -185,35 +185,37 @@ static int method_send_message(sd_bus_message *msg, void *userdata,
 	int r;
 	uint8_t rsp[KCS_MESSAGE_SIZE];
 
-	if (!context || context->expired) {
-		sd_bus_error_set_const(err, DBUS_ERR, "Internal error");
-		r = 0;
-		goto out;
-	}
+	if (!context || context->expired)
+		return sd_bus_error_set_const(err, DBUS_ERR, "Internal error");
 
 	r = sd_bus_message_read(msg, "yyyyy", &seqnum, &netfn, &lun, &cmd, &cc);
 	if (r < 0) {
-		sd_bus_error_set_const(err, DBUS_ERR, "Bad message");
-		r = -EINVAL;
-		goto out;
+		return sd_bus_error_set_errnof(
+			err, -r, "Bad message from seq %u cmd %u", seqnum, cmd);
 	}
 
 	req = &context->req;
+
 	if (context->seqnum != seqnum || (req->netfn | 1) != netfn
 	    || req->lun != lun || req->cmd != cmd) {
-		sd_bus_error_set_const(err, DBUS_ERR, "No matching request");
-		r = -EINVAL;
-		goto out;
+		MSG_ERR("Mismatch: context seqnum %u netfn %u lun %u cmd %u,"
+			"received seqnum %u netfn %u lun %u cmd %u",
+			context->seqnum, req->netfn, req->lun, req->cmd, seqnum,
+			netfn, lun, cmd);
+		return sd_bus_error_set_errnof(err, EINVAL,
+					       "No matching request");
 	}
 
 	kcs_set_timer(context, 0); /* Stop the timer. */
 
 	r = sd_bus_message_read_array(msg, 'y', (const void **)&data, &data_sz);
-	if (r < 0 || data_sz > sizeof(rsp) - 3) {
-		sd_bus_error_set_const(err, DBUS_ERR, "Bad message data");
-		r = -EINVAL;
-		goto out;
-	}
+	if (r < 0)
+		return sd_bus_error_set_errnof(
+			err, -r, "Message data read failure seq %u cmd %u",
+			seqnum, cmd);
+
+	if (data_sz > sizeof(rsp) - 3)
+		return sd_bus_error_set_errnof(err, EINVAL, "Bad message data");
 
 	rsp[0] = (netfn << 2) | (lun & 0x3);
 	rsp[1] = cmd;
@@ -222,8 +224,9 @@ static int method_send_message(sd_bus_message *msg, void *userdata,
 		memcpy(rsp + 3, data, data_sz);
 
 	r = write(context->fds[KCS_FD].fd, rsp, 3 + data_sz);
-	if (r > 0)
-		r = 0;
+	if (r < 0)
+		return sd_bus_error_set_errnof(err, errno,
+					       "Device file write error");
 
 	MSG_OUT("Send rsp msg <- seq=0x%02x netfn=0x%02x lun=0x%02x cmd=0x%02x cc=0x%02x\n",
 		seqnum, netfn, lun, cmd, cc);
@@ -231,8 +234,7 @@ static int method_send_message(sd_bus_message *msg, void *userdata,
 	if (verbosity == KCS_LOG_DEBUG && data_sz != 0)
 		kcs_dump_data(data, data_sz);
 
-out:
-	return sd_bus_reply_method_return(msg, "x", r);
+	return sd_bus_reply_method_return(msg, "x", 0);
 }
 
 static int method_set_sms_atn(sd_bus_message *msg, void *userdata,
@@ -244,14 +246,11 @@ static int method_set_sms_atn(sd_bus_message *msg, void *userdata,
 	MSG_OUT("Sending SET_SMS_ATN\n");
 
 	r = ioctl(context->fds[KCS_FD].fd, IPMI_BMC_IOCTL_SET_SMS_ATN);
-	if (r == -1) {
-		r = errno;
-		MSG_ERR("Couldn't SET_SMS_ATN: %s\n", strerror(r));
-		return sd_bus_reply_method_errno(msg, errno, err);
-	}
+	if (r < 0)
+		return sd_bus_error_set_errnof(err, errno,
+					       "Couldn't SET_SMS_ATN");
 
-	r = 0;
-	return sd_bus_reply_method_return(msg, "x", r);
+	return sd_bus_reply_method_return(msg, "x", 0);
 }
 
 static int method_clear_sms_atn(sd_bus_message *msg, void *userdata,
@@ -263,14 +262,11 @@ static int method_clear_sms_atn(sd_bus_message *msg, void *userdata,
 	MSG_OUT("Sending CLEAR_SMS_ATN\n");
 
 	r = ioctl(context->fds[KCS_FD].fd, IPMI_BMC_IOCTL_CLEAR_SMS_ATN);
-	if (r == -1) {
-		r = errno;
-		MSG_ERR("Couldn't CLEAR_SMS_ATN: %s\n", strerror(r));
-		return sd_bus_reply_method_errno(msg, errno, err);
-	}
+	if (r < 0)
+		return sd_bus_error_set_errnof(err, errno,
+					       "Couldn't CLEAR_SMS_ATN");
 
-	r = 0;
-	return sd_bus_reply_method_return(msg, "x", r);
+	return sd_bus_reply_method_return(msg, "x", 0);
 }
 
 static int method_force_abort(sd_bus_message *msg, void *userdata,
@@ -282,14 +278,11 @@ static int method_force_abort(sd_bus_message *msg, void *userdata,
 	MSG_OUT("Sending FORCE_ABORT\n");
 
 	r = ioctl(context->fds[KCS_FD].fd, IPMI_BMC_IOCTL_FORCE_ABORT);
-	if (r == -1) {
-		r = errno;
-		MSG_ERR("Couldn't FORCE_ABORT: %s\n", strerror(r));
-		return sd_bus_reply_method_errno(msg, errno, err);
-	}
+	if (r < 0)
+		return sd_bus_error_set_errnof(err, errno,
+					       "Couldn't FORCE_ABORT");
 
-	r = 0;
-	return sd_bus_reply_method_return(msg, "x", r);
+	return sd_bus_reply_method_return(msg, "x", 0);
 }
 
 static int dispatch_sd_bus(struct kcsbridged_context *context)
@@ -322,7 +315,8 @@ static int dispatch_timer(struct kcsbridged_context *context)
 		rsp[1] = req->cmd;
 		rsp[2] = 0xce; /* Command response could not be provided */
 		if (write(context->fds[KCS_FD].fd, rsp, 3) < 0)
-			MSG_ERR("Failed to send the timeout response!\n");
+			MSG_ERR("Failed to send the timeout response: %s\n",
+				strerror(errno));
 	}
 
 	return 0;
