@@ -1,4 +1,4 @@
-sbin_PROGRAMS = kcsbridged
+bin_PROGRAMS = kcsbridged
 
 kcsbridged_SOURCES = kcsbridged.c
 kcsbridged_LDFLAGS = $(SYSTEMD_LIBS)
