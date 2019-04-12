@@ -306,36 +306,15 @@ class SmsChannel
 
 } // namespace
 
-// this is a hack to allow the new thing run with the old service file
-// it will be removed once the bb file is updated to use the new service file
-#define ALLOW_OLD_ARGS 1
-
 int main(int argc, char* argv[])
 {
     CLI::App app("KCS IPMI bridge");
     std::string channel;
-    app.add_option("-c,--channel", channel, "channel name. e.g., ipmi-kcs3");
+    app.add_option("-c,--channel", channel, "channel name. e.g., ipmi-kcs3")
+        ->required();
     bool verbose = false;
     app.add_option("-v,--verbose", verbose, "print more verbose output");
-#ifdef ALLOW_OLD_ARGS
-    std::string device;
-    app.add_option("--d,--device", device, "device name. e.g., /dev/ipmi-kcs3");
-#endif
     CLI11_PARSE(app, argc, argv);
-
-#ifdef ALLOW_OLD_ARGS
-    if (channel.size() == 0)
-    {
-        size_t start = device.rfind('/');
-        if (start == std::string::npos)
-        {
-            log<level::ERR>("bad device option",
-                            entry("DEVICE=%s", device.c_str()));
-            return EXIT_FAILURE;
-        }
-        channel = device.substr(start + 1);
-    }
-#endif
 
     // Connect to system bus
     auto io = std::make_shared<boost::asio::io_context>();
