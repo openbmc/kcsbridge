@@ -17,6 +17,23 @@ PKG_CHECK_MODULES([SYSTEMD], [libsystemd >= 221])
 PKG_CHECK_MODULES([PHOSPHOR_LOGGING], [phosphor-logging])
 PKG_CHECK_MODULES([SDBUSPLUS], [sdbusplus])
 
+# systemd unit general configuration
+PKG_PROG_PKG_CONFIG
+AC_ARG_WITH([systemdsystemunitdir],
+            [AS_HELP_STRING([--with-systemdsystemunitdir=DIR],
+                            [Directory for systemd service files])], [],
+            [with_systemdsystemunitdir=auto])
+AS_IF([test "x$with_systemdsystemunitdir" = "xyes" -o "x$with_systemdsystemunitdir" = "xauto"],
+      [def_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)
+       AS_IF([test "x$def_systemdsystemunitdir" = "x"],
+             [AS_IF([test "x$with_systemdsystemunitdir" = "xyes"],
+                    [AC_MSG_ERROR([systemd support requested but pkg-config unable to query systemd package])],
+                    [with_systemdsystemunitdir=no])],
+             [with_systemdsystemunitdir="$def_systemdsystemunitdir"])])
+AS_IF([test "x$with_systemdsystemunitdir" != "xno"],
+      [AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])])
+AM_CONDITIONAL([HAVE_SYSTEMD], [test "x$with_systemdsystemunitdir" != "xno"])
+
 # Checks for header files.
 AC_CHECK_HEADER(systemd/sd-bus.h, ,[AC_MSG_ERROR([Could not find systemd/sd-bus.h...systemd development package required])])
 AC_CHECK_HEADER(linux/ipmi_bmc.h,[HAVE_LINUX_IPMI_BMC_H=""],[HAVE_LINUX_IPMI_BMC_H="-I linux/ipmi_bmc.h"])
