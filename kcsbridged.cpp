@@ -18,12 +18,101 @@
 
 #include <CLI/CLI.hpp>
 #include <boost/asio.hpp>
+#include <chrono>
+#include <cstdint>
 #include <iostream>
+#include <map>
 #include <phosphor-logging/log.hpp>
 #include <sdbusplus/asio/connection.hpp>
 #include <sdbusplus/asio/object_server.hpp>
+#include <utility>
+#include <vector>
 
 using namespace phosphor::logging;
+using namespace std::chrono;
+
+// KY: global data structure for a histogram
+unsigned long long num_requests = 0;
+unsigned long long num_responses = 0;
+time_point<high_resolution_clock> start, end;
+
+// histogram: for each {netfn, lun, cmd}, keep an array of counts of response
+// time
+// [0]: error
+// [1]: 0-10ms
+// [2]: 10-100ms
+// [3]: -1s
+// [4]: -2s
+// [5]: -5s
+// [6]: >5s (should not happen)
+// [7]: total count
+// [8]: total time in ms
+using hist_t = std::map<uint32_t, std::vector<unsigned long long>>;
+hist_t histogram;
+constexpr inline kHistNumCols = 9;
+
+static inline void prettyPrint(const hist_t& h)
+{
+    std::cout << " error, 10ms, 50ms, 250ms, 1s, 5s, >5s, total, total_ms"
+              << std::endl;
+    for (auto const& [k, v] : h)
+    {
+        // k is {netfn, lun, cmd}, each a byte
+        std::cout << "NetFn 0x" << std::hex << (int)((k >> 16) & 0xff)
+                  << " LUN 0x" << (int)((k >> 8) & 0xff) << " CMD 0x"
+                  << (int)(k & 0xff) << std::dec;
+        for (const auto& i : v)
+        {
+            std::cout << " \t" << i;
+        }
+        std::cout << std::endl;
+    }
+}
+
+static inline void incrementHist(hist_t& h, uint8_t netfn, uint8_t lun,
+                                 uint8_t cmd, int num_ms)
+{
+    uint32_t k = netfn << 16 | lun << 8 | cmd;
+    if (histogram.find(k) == histogram.end())
+    {
+        histogram.insert(std::pair<uint32_t, std::vector<unsigned long long>>(
+            k, std::vector<unsigned long long>(kHistNumCols)));
+    }
+
+    auto& arr = histogram[k];
+
+    if (num_ms < 0)
+    {
+        ++arr[0];
+    }
+    else if (num_ms < 10)
+    {
+        ++arr[1];
+    }
+    else if (num_ms < 50)
+    {
+        ++arr[2];
+    }
+    else if (num_ms < 250)
+    {
+        ++arr[3];
+    }
+    else if (num_ms < 1000)
+    {
+        ++arr[4];
+    }
+    else if (num_ms < 5000)
+    {
+        ++arr[5];
+    }
+    else
+    {
+        ++arr[6];
+    }
+
+    ++arr[7];
+    arr[8] += num_ms;
+}
 
 namespace
 {
@@ -168,6 +257,11 @@ class SmsChannel
                              entry("LUN=0x%02x", lun),
                              entry("CMD=0x%02x", cmd));
         }
+
+        // KY: increment counter
+        ++num_requests;
+        start = high_resolution_clock::now();
+
         // copy out payload
         std::vector<uint8_t> data(rawIter, rawEnd);
         // non-session bridges still need to pass an empty options map
@@ -183,11 +277,20 @@ class SmsChannel
             "xyz.openbmc_project.Ipmi.Server";
         static constexpr const char ipmiQueueMethod[] = "execute";
         bus->async_method_call(
-            [this, netfnCap{netfn}, lunCap{lun},
-             cmdCap{cmd}](const boost::system::error_code& ec,
-                          const IpmiDbusRspType& response) {
+            [this, netfnCap{netfn}, lunCap{lun}, cmdCap{cmd}, &start,
+             &end](const boost::system::error_code& ec,
+                   const IpmiDbusRspType& response) {
                 std::vector<uint8_t> rsp;
                 const auto& [netfn, lun, cmd, cc, payload] = response;
+
+                ++num_responses;
+                if (num_responses != num_requests)
+                {
+                    std::cout << " num_requests " << num_requests
+                              << " != num_responses " << num_responses
+                              << std::endl;
+                }
+
                 if (ec)
                 {
                     log<level::ERR>(
@@ -201,6 +304,8 @@ class SmsChannel
                         ((netfnCap + 1) << netFnShift) | (lunCap & lunMask);
                     rsp[1] = cmdCap;
                     rsp[2] = ccResponseNotAvailable;
+
+                    incrementHist(histogram, netfn, lun, cmd, -1);
                 }
                 else
                 {
@@ -216,14 +321,28 @@ class SmsChannel
                     {
                         std::copy(payload.cbegin(), payload.cend(), rspIter);
                     }
+
+                    end = high_resolution_clock::now();
+                    auto diff = end - start;
+                    auto diff_ms_int =
+                        duration_cast<milliseconds>(diff).count();
+                    incrementHist(histogram, netfn, lun, cmd, diff_ms_int);
                 }
+
                 if (verbose)
                 {
                     log<level::INFO>(
                         "Send rsp msg", entry("NETFN=0x%02x", netfn),
                         entry("LUN=0x%02x", lun), entry("CMD=0x%02x", cmd),
                         entry("CC=0x%02x", cc));
+
+                    // KY: print evert 256 messages
+                    if (num_responses % 256 == 0)
+                    {
+                        prettyPrint(histogram);
+                    }
                 }
+
                 boost::system::error_code ecWr;
                 size_t wlen =
                     boost::asio::write(*dev, boost::asio::buffer(rsp), ecWr);
