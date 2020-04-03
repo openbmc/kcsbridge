@@ -78,7 +78,7 @@ struct ForceAbort
 class SmsChannel
 {
   public:
-    static constexpr size_t kcsMessageSize = 256;
+    static constexpr size_t kcsMessageSize = 4096;
     static constexpr uint8_t netFnShift = 2;
     static constexpr uint8_t lunMask = (1 << netFnShift) - 1;
 
