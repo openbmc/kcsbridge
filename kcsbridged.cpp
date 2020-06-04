@@ -171,7 +171,7 @@ class SmsChannel
         // copy out payload
         std::vector<uint8_t> data(rawIter, rawEnd);
         // non-session bridges still need to pass an empty options map
-        std::map<std::string, sdbusplus::message::variant<int>> options;
+        std::map<std::string, std::variant<int>> options;
         // the response is a tuple because dbus can only return a single value
         using IpmiDbusRspType = std::tuple<uint8_t, uint8_t, uint8_t, uint8_t,
                                            std::vector<uint8_t>>;
