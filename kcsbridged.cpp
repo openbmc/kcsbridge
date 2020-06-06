@@ -112,8 +112,12 @@ class SmsChannel
 
         static constexpr const char pathBase[] =
             "/xyz/openbmc_project/Ipmi/Channel/";
+        std::string chk_channel;
+        chk_channel.assign(channel);
+        std::replace(chk_channel.begin(), chk_channel.end(), '-',
+                     '_'); // replace all '-' to '_'
         std::shared_ptr<sdbusplus::asio::dbus_interface> iface =
-            server->add_interface(pathBase + channel,
+            server->add_interface(pathBase + chk_channel,
                                   "xyz.openbmc_project.Ipmi.Channel.SMS");
         iface->register_method("setAttention",
                                [this]() { return setAttention(); });
