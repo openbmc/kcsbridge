@@ -17,6 +17,7 @@
 #include <linux/ipmi_bmc.h>
 
 #include <CLI/CLI.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/asio.hpp>
 #include <iostream>
 #include <phosphor-logging/log.hpp>
@@ -113,8 +114,9 @@ class SmsChannel
         static constexpr const char pathBase[] =
             "/xyz/openbmc_project/Ipmi/Channel/";
         std::shared_ptr<sdbusplus::asio::dbus_interface> iface =
-            server->add_interface(pathBase + channel,
-                                  "xyz.openbmc_project.Ipmi.Channel.SMS");
+            server->add_interface(
+                pathBase + boost::replace_all_copy(channel, "-", "_"),
+                "xyz.openbmc_project.Ipmi.Channel.SMS");
         iface->register_method("setAttention",
                                [this]() { return setAttention(); });
         iface->register_method("clearAttention",
@@ -331,7 +333,7 @@ int main(int argc, char* argv[])
     }
 
     static constexpr const char busBase[] = "xyz.openbmc_project.Ipmi.Channel.";
-    std::string busName(busBase + channel);
+    std::string busName(busBase + boost::replace_all_copy(channel, "-", "_"));
     bus->request_name(busName.c_str());
 
     io->run();
