@@ -164,9 +164,10 @@ class SmsChannel
         uint8_t cmd = *rawIter++;
         if (verbose)
         {
-            log<level::INFO>("Read req msg", entry("NETFN=0x%02x", netfn),
-                             entry("LUN=0x%02x", lun),
-                             entry("CMD=0x%02x", cmd));
+            // log<level::INFO>("Read req msg", entry("NETFN=0x%02x", netfn),
+            //                  entry("LUN=0x%02x", lun),
+            //                  entry("CMD=0x%02x", cmd));
+            fprintf(stderr, "Read req msg: NETFN=0x%02x, LUN=0x%02x\n", netfn, lun);
         }
         // copy out payload
         std::vector<uint8_t> data(rawIter, rawEnd);
@@ -190,10 +191,15 @@ class SmsChannel
                 const auto& [netfn, lun, cmd, cc, payload] = response;
                 if (ec)
                 {
-                    log<level::ERR>(
-                        "kcs<->ipmid bus error:", entry("NETFN=0x%02x", netfn),
-                        entry("LUN=0x%02x", lun), entry("CMD=0x%02x", cmd),
-                        entry("ERROR=%s", ec.message().c_str()));
+                    // log<level::ERR>(
+                    //     "kcs<->ipmid bus error:", entry("NETFN=0x%02x",
+                    //     netfn), entry("LUN=0x%02x", lun), entry("CMD=0x%02x",
+                    //     cmd), entry("ERROR=%s", ec.message().c_str()));
+                    fprintf(stderr,
+                            "kcs<->ipmid bus error: NETFN=0x%02x, LUN=0x%02x, "
+                            "CMD=0x%02x, ERROR=%s\n",
+                            netfn, lun, cmd, ec.message().c_str());
+
                     // send unspecified error for a D-Bus error
                     constexpr uint8_t ccResponseNotAvailable = 0xce;
                     rsp.resize(sizeof(netfn) + sizeof(cmd) + sizeof(cc));
@@ -219,22 +225,42 @@ class SmsChannel
                 }
                 if (verbose)
                 {
-                    log<level::INFO>(
-                        "Send rsp msg", entry("NETFN=0x%02x", netfn),
-                        entry("LUN=0x%02x", lun), entry("CMD=0x%02x", cmd),
-                        entry("CC=0x%02x", cc));
+                    // log<level::INFO>(
+                    //     "Send rsp msg", entry("NETFN=0x%02x", netfn),
+                    //     entry("LUN=0x%02x", lun), entry("CMD=0x%02x", cmd),
+                    //     entry("CC=0x%02x", cc));
+                    fprintf(stderr,
+                            "Send rsp msg: NETFN=0x%02x, LUN=0x%02x, "
+                            "CMD=0x%02x, CC=0x%02x\n",
+                            netfn, lun, cmd, cc);
                 }
                 boost::system::error_code ecWr;
-                size_t wlen =
-                    boost::asio::write(*dev, boost::asio::buffer(rsp), ecWr);
-                if (ecWr || wlen != rsp.size())
+                int retries = 3;
+                while (retries-- > 0)
                 {
-                    log<level::ERR>(
-                        "Failed to send rsp msg", entry("SIZE=%d", wlen),
-                        entry("EXPECT=%d", rsp.size()),
-                        entry("ERROR=%s", ecWr.message().c_str()),
-                        entry("NETFN=0x%02x", netfn), entry("LUN=0x%02x", lun),
-                        entry("CMD=0x%02x", cmd), entry("CC=0x%02x", cc));
+                    size_t wlen =
+                        boost::asio::write(*dev, boost::asio::buffer(rsp), ecWr);
+                    if (ecWr || wlen != rsp.size())
+                    {
+                        // log<level::ERR>(
+                        //     "Failed to send rsp msg", entry("SIZE=%d", wlen),
+                        //     entry("EXPECT=%d", rsp.size()),
+                        //     entry("ERROR=%s", ecWr.message().c_str()),
+                        //     entry("NETFN=0x%02x", netfn), entry("LUN=0x%02x",
+                        //     lun), entry("CMD=0x%02x", cmd), entry("CC=0x%02x",
+                        //     cc));
+                        fprintf(stderr,
+                                "Failed to send rsp msg: retries=%d, SIZE=%lu, EXPECT=%lu, "
+                                "ERROR=%s, NETFN=0x%02x, LUN=0x%02x, CMD=0x%02x, "
+                                "CC=0x%02x",
+                                retries,
+                                wlen, rsp.size(), ecWr.message().c_str(), netfn,
+                                lun, cmd, cc);
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             },
             ipmiQueueService, ipmiQueuePath, ipmiQueueIntf, ipmiQueueMethod,
