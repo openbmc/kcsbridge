@@ -12,7 +12,12 @@ subdir('src')
 
 systemd = dependency('systemd')
 if systemd.found()
-  install_data(
-    'phosphor-ipmi-kcs@.service',
+  conf_data = configuration_data()
+  conf_data.set('BIN', get_option('prefix') / get_option('libexecdir') / kcsbridged.name())
+  configure_file(
+    input: 'phosphor-ipmi-kcs@.service.in',
+    output: 'phosphor-ipmi-kcs@.service',
+    configuration: conf_data,
+    install: true,
     install_dir: systemd.get_variable(pkgconfig: 'systemdsystemunitdir'))
 endif

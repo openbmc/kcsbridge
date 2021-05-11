@@ -8,7 +8,7 @@ has_cli11 = meson.get_compiler('cpp').has_header_symbol(
   required: false)
 assert(has_cli11, 'CLI11 is required')
 
-executable(
+kcsbridged = executable(
   'kcsbridged',
   'kcsbridged.cpp',
   implicit_include_directories: false,
@@ -32,4 +32,4 @@ executable(
     '-DBOOST_COROUTINES_NO_DEPRECATION_WARNING',
   ],
   install: true,
-  install_dir: get_option('bindir'))
+  install_dir: get_option('libexecdir'))
