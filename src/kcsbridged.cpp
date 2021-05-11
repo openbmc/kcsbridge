@@ -19,10 +19,11 @@
 #include <CLI/CLI.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/asio.hpp>
-#include <iostream>
 #include <phosphor-logging/log.hpp>
 #include <sdbusplus/asio/connection.hpp>
 #include <sdbusplus/asio/object_server.hpp>
+
+#include <iostream>
 
 using namespace phosphor::logging;
 
