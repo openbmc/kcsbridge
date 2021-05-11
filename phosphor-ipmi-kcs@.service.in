@@ -5,7 +5,7 @@ After=phosphor-ipmi-host.service
 
 [Service]
 Restart=always
-ExecStart=/usr/bin/kcsbridged -c "%i"
+ExecStart=@BIN@ -c "%i"
 SyslogIdentifier=kcsbridged-%i
 
 [Install]
