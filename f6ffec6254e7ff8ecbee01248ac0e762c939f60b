@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "165a31af_721dbbcf",
+        "filename": "src/main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-05-12T21:04:57Z",
+      "side": 1,
+      "message": "We do request a name (line 64). Type\u003ddbus won\u0027t be possible since we modify the input channel name using some logic that you can\u0027t replicate in a service file.",
+      "parentUuid": "beab2ac1_74005518",
+      "revId": "f6ffec6254e7ff8ecbee01248ac0e762c939f60b",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "896f119c_11c75e8c",
         "filename": "src/main.cpp",
         "patchSetId": 1
@@ -65,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "8486c012_6f7bb21d",
+        "filename": "src/main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-05-12T21:04:57Z",
+      "side": 1,
+      "message": "We always read all of the available data for every single poll due to the nature of how the kcs interface handles reads. It\u0027s perfectly safe to use edge triggering as poll doesn\u0027t need to go back and re-evaluate if there was more data left after a read. Any new requests that came in right after the read would set a new edge trigger.",
+      "parentUuid": "896f119c_11c75e8c",
+      "range": {
+        "startLine": 54,
+        "startChar": 44,
+        "endLine": 54,
+        "endChar": 51
+      },
+      "revId": "f6ffec6254e7ff8ecbee01248ac0e762c939f60b",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f8b83b6_949db3f1",
         "filename": "src/main.cpp",
         "patchSetId": 1
@@ -85,6 +127,30 @@
       "revId": "f6ffec6254e7ff8ecbee01248ac0e762c939f60b",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaad2d95_1ddae3bf",
+        "filename": "src/main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-05-12T21:04:57Z",
+      "side": 1,
+      "message": "I had to make a copy to do the replace in-place below it.",
+      "parentUuid": "5f8b83b6_949db3f1",
+      "range": {
+        "startLine": 59,
+        "startChar": 5,
+        "endLine": 59,
+        "endChar": 15
+      },
+      "revId": "f6ffec6254e7ff8ecbee01248ac0e762c939f60b",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     }
   ]
 }
