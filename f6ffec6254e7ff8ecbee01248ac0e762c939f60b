@@ -84,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "acc7e33b_613169b5",
+        "filename": "src/main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000153
+      },
+      "writtenOn": "2021-05-13T01:07:42Z",
+      "side": 1,
+      "message": "Gotcha.  Missed that.",
+      "parentUuid": "165a31af_721dbbcf",
+      "revId": "f6ffec6254e7ff8ecbee01248ac0e762c939f60b",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "896f119c_11c75e8c",
         "filename": "src/main.cpp",
         "patchSetId": 1
@@ -131,6 +149,30 @@
     },
     {
       "key": {
+        "uuid": "4a50bca9_5098b19c",
+        "filename": "src/main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1000153
+      },
+      "writtenOn": "2021-05-13T01:07:42Z",
+      "side": 1,
+      "message": "makes sense.",
+      "parentUuid": "8486c012_6f7bb21d",
+      "range": {
+        "startLine": 54,
+        "startChar": 44,
+        "endLine": 54,
+        "endChar": 51
+      },
+      "revId": "f6ffec6254e7ff8ecbee01248ac0e762c939f60b",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f8b83b6_949db3f1",
         "filename": "src/main.cpp",
         "patchSetId": 1
@@ -166,6 +208,30 @@
       "side": 1,
       "message": "I had to make a copy to do the replace in-place below it.",
       "parentUuid": "5f8b83b6_949db3f1",
+      "range": {
+        "startLine": 59,
+        "startChar": 5,
+        "endLine": 59,
+        "endChar": 15
+      },
+      "revId": "f6ffec6254e7ff8ecbee01248ac0e762c939f60b",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbdfb22c_4b33de59",
+        "filename": "src/main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000153
+      },
+      "writtenOn": "2021-05-13T01:07:42Z",
+      "side": 1,
+      "message": "Good point.",
+      "parentUuid": "eaad2d95_1ddae3bf",
       "range": {
         "startLine": 59,
         "startChar": 5,
