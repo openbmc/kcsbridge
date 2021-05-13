@@ -22,6 +22,30 @@
       "revId": "362d087d35d8b1de1d1aa51f1e558944126a7957",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7338ec32_9f9b99a8",
+        "filename": "org.openbmc.HostIpmi.conf",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-05-13T21:49:19Z",
+      "side": 0,
+      "message": "This file isn\u0027t being used or installed from autotools today. We can add back whatever file we actually need in the future.",
+      "parentUuid": "fed564b5_839a7845",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 12
+      },
+      "revId": "362d087d35d8b1de1d1aa51f1e558944126a7957",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     }
   ]
 }
