@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "569d7520_0ce30d28",
+        "filename": "src/cmd.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-05-19T18:30:04Z",
+      "side": 1,
+      "message": "The KCS driver in the kernel uses 1KB buffers, although IPMI would never use more than 64-128. I don\u0027t strongly care either way, I just figured it was mostly inconsequential to have that unused stack space.\n\nhttps://github.com/openbmc/linux/blob/dev-5.10/drivers/char/ipmi/kcs_bmc.c#L21",
+      "parentUuid": "73f7e5aa_d72f1774",
+      "range": {
+        "startLine": 30,
+        "startChar": 24,
+        "endLine": 30,
+        "endChar": 28
+      },
+      "revId": "6d5f7a63fa6c45bd8fbe6dbfd506c5a71296763f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "917c76aa_3d0bea1a",
         "filename": "src/cmd.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "6d5f7a63fa6c45bd8fbe6dbfd506c5a71296763f",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16798e39_fc25ea54",
+        "filename": "src/cmd.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-05-19T18:30:04Z",
+      "side": 1,
+      "message": "These type of exceptions would never be a timeout, the host drives timeouts now.",
+      "parentUuid": "917c76aa_3d0bea1a",
+      "range": {
+        "startLine": 62,
+        "startChar": 19,
+        "endLine": 62,
+        "endChar": 25
+      },
+      "revId": "6d5f7a63fa6c45bd8fbe6dbfd506c5a71296763f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9f3ebd20_58b1b212",
+        "filename": "src/cmd.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-05-19T18:30:04Z",
+      "side": 1,
+      "message": "The ignore wrapper does log errors.",
+      "parentUuid": "57ffc6f8_285365b5",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 38
+      },
+      "revId": "6d5f7a63fa6c45bd8fbe6dbfd506c5a71296763f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c1c9e349_eb518c83",
         "filename": "src/cmd.cpp",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "6d5f7a63fa6c45bd8fbe6dbfd506c5a71296763f",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e51d75d0_c7844302",
+        "filename": "src/cmd.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-05-19T18:30:04Z",
+      "side": 1,
+      "message": "Sure.",
+      "parentUuid": "c1c9e349_eb518c83",
+      "range": {
+        "startLine": 92,
+        "startChar": 59,
+        "endLine": 92,
+        "endChar": 60
+      },
+      "revId": "6d5f7a63fa6c45bd8fbe6dbfd506c5a71296763f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     }
   ]
 }
