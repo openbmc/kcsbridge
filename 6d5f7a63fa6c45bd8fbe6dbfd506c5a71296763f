@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73f7e5aa_d72f1774",
+        "filename": "src/cmd.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000163
+      },
+      "writtenOn": "2021-05-19T18:12:44Z",
+      "side": 1,
+      "message": "while I applaud the use of a large buffer here, I am not aware of any OSes that can support a KCS transaction of this size. There is no reason why not, other than nobody currently does it; I am a proponent of at least a 4kB max size for KCS. But at this point, the biggest size I have seen allowed by the OS is 256 bytes.\n\nSince the BMC side of the KCS driver uses the standard Linux driver, I think it is limited to 128 bytes. Unless things have changed since I last looked.",
+      "range": {
+        "startLine": 30,
+        "startChar": 24,
+        "endLine": 30,
+        "endChar": 28
+      },
+      "revId": "6d5f7a63fa6c45bd8fbe6dbfd506c5a71296763f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "917c76aa_3d0bea1a",
+        "filename": "src/cmd.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000163
+      },
+      "writtenOn": "2021-05-19T18:12:44Z",
+      "side": 1,
+      "message": "rather than 0xff every time, it might be more helpful to return a 0xc3 in the case of a dbus timeout.",
+      "range": {
+        "startLine": 62,
+        "startChar": 19,
+        "endLine": 62,
+        "endChar": 25
+      },
+      "revId": "6d5f7a63fa6c45bd8fbe6dbfd506c5a71296763f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57ffc6f8_285365b5",
+        "filename": "src/cmd.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1000163
+      },
+      "writtenOn": "2021-05-19T18:12:44Z",
+      "side": 1,
+      "message": "writeExact errors are going to be ignored here because of the stdplus::exception::ignore() wrapper. I think it would be best practice to at least log those.",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 38
+      },
+      "revId": "6d5f7a63fa6c45bd8fbe6dbfd506c5a71296763f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1c9e349_eb518c83",
+        "filename": "src/cmd.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000163
+      },
+      "writtenOn": "2021-05-19T18:12:44Z",
+      "side": 1,
+      "message": "I don\u0027t know if there is a community standard on this, but I prefer to be explicit on lambda captures.\n\n[outstanding](...){...}",
+      "range": {
+        "startLine": 92,
+        "startChar": 59,
+        "endLine": 92,
+        "endChar": 60
+      },
+      "revId": "6d5f7a63fa6c45bd8fbe6dbfd506c5a71296763f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    }
+  ]
+}
