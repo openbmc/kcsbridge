@@ -1,6 +1,6 @@
 [Unit]
 Description=Phosphor IPMI KCS DBus Bridge
-Requires=phosphor-ipmi-host.service
+Wants=phosphor-ipmi-host.service
 After=phosphor-ipmi-host.service
 
 [Service]
@@ -11,4 +11,3 @@ SyslogIdentifier=kcsbridged-%i
 
 [Install]
 WantedBy=multi-user.target
-RequiredBy=
