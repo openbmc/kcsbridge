@@ -8,10 +8,10 @@
 #include <sdbusplus/slot.hpp>
 #include <stdplus/exception.hpp>
 #include <stdplus/fd/ops.hpp>
-#include <stdplus/types.hpp>
 
 #include <array>
 #include <map>
+#include <span>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
@@ -28,7 +28,7 @@ using sdbusplus::slot::slot;
 void write(stdplus::Fd& kcs, message&& m)
 {
     std::array<uint8_t, 1024> buffer;
-    stdplus::span<uint8_t> out(buffer.begin(), 3);
+    std::span<uint8_t> out(buffer.begin(), 3);
     try
     {
         if (m.is_method_error())
@@ -53,7 +53,7 @@ void write(stdplus::Fd& kcs, message&& m)
         buffer[1] = cmd;
         buffer[2] = cc;
         memcpy(&buffer[3], data.data(), data.size());
-        out = stdplus::span<uint8_t>(buffer.begin(), data.size() + 3);
+        out = std::span<uint8_t>(buffer.begin(), data.size() + 3);
     }
     catch (const std::exception& e)
     {
