@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f4ed413_ec04e9c1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000682
+      },
+      "writtenOn": "2022-06-01T16:53:27Z",
+      "side": 1,
+      "message": "If ipmid fails, will kcs fail immediately because of the \"Requires\u003d\n\" config?",
+      "revId": "455def0342d9a12aa2d49c9ef7e136af95c3ffca",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "477f5926_2b57f4a6",
+        "filename": "phosphor-ipmi-kcs@.service.in",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000682
+      },
+      "writtenOn": "2022-06-01T16:53:27Z",
+      "side": 1,
+      "message": "I believe this is aligned with the recommendation.\n\n\"\nOften, it is a better choice to use Wants\u003d instead of Requires\u003d in order to achieve a system that is more robust when dealing with failing services.\n\"",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 5
+      },
+      "revId": "455def0342d9a12aa2d49c9ef7e136af95c3ffca",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
