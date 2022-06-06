@@ -18,6 +18,24 @@
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "944bd675_230885e4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000847
+      },
+      "writtenOn": "2022-06-06T09:52:24Z",
+      "side": 1,
+      "message": "Yes, if ipmid fails to start, kcs will fail and never restart. The journal will print the logs like below.\nJan 01 00:00:56 gsz systemd[1]: Dependency failed for Phosphor IPMI KCS DBus Bridge.\nJan 01 00:00:56 gsz systemd[1]: phosphor-ipmi-kcs@ipmi_kcs1.service: Job phosphor-ipmi-kcs@ipmi_kcs1.service/start failed with result \u0027dependency\u0027.",
+      "parentUuid": "4f4ed413_ec04e9c1",
+      "revId": "455def0342d9a12aa2d49c9ef7e136af95c3ffca",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "477f5926_2b57f4a6",
