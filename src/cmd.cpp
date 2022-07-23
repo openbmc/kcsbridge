@@ -21,9 +21,9 @@
 namespace kcsbridge
 {
 
-using sdbusplus::bus::bus;
-using sdbusplus::message::message;
-using sdbusplus::slot::slot;
+using sdbusplus::bus_t;
+using sdbusplus::message_t;
+using sdbusplus::slot_t;
 
 void write(stdplus::Fd& kcs, message&& m)
 {

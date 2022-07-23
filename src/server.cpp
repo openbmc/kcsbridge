@@ -13,19 +13,19 @@
 namespace kcsbridge
 {
 
-void setAttention(sdbusplus::message::message& m, stdplus::Fd& kcs)
+void setAttention(sdbusplus::message_t& m, stdplus::Fd& kcs)
 {
     stdplus::fd::ioctl(kcs, IPMI_BMC_IOCTL_SET_SMS_ATN, nullptr);
     m.new_method_return().method_return();
 }
 
-void clearAttention(sdbusplus::message::message& m, stdplus::Fd& kcs)
+void clearAttention(sdbusplus::message_t& m, stdplus::Fd& kcs)
 {
     stdplus::fd::ioctl(kcs, IPMI_BMC_IOCTL_CLEAR_SMS_ATN, nullptr);
     m.new_method_return().method_return();
 }
 
-void forceAbort(sdbusplus::message::message& m, stdplus::Fd& kcs)
+void forceAbort(sdbusplus::message_t& m, stdplus::Fd& kcs)
 {
     stdplus::fd::ioctl(kcs, IPMI_BMC_IOCTL_FORCE_ABORT, nullptr);
     m.new_method_return().method_return();
@@ -34,7 +34,7 @@ void forceAbort(sdbusplus::message::message& m, stdplus::Fd& kcs)
 template <auto func, typename Data>
 int methodRsp(sd_bus_message* mptr, void* dataptr, sd_bus_error* error) noexcept
 {
-    sdbusplus::message::message m(mptr);
+    sdbusplus::message_t m(mptr);
     try
     {
         func(m, *reinterpret_cast<Data*>(dataptr));
@@ -61,8 +61,9 @@ constexpr sdbusplus::vtable::vtable_t dbusMethods[] = {
     sdbusplus::vtable::end(),
 };
 
-sdbusplus::server::interface::interface createSMSHandler(
-    sdbusplus::bus::bus& bus, const char* obj, stdplus::Fd& kcs)
+sdbusplus::server::interface::interface createSMSHandler(sdbusplus::bus_t& bus,
+                                                         const char* obj,
+                                                         stdplus::Fd& kcs)
 {
     return sdbusplus::server::interface::interface(
         bus, obj, "xyz.openbmc_project.Ipmi.Channel.SMS",
