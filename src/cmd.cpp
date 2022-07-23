@@ -21,11 +21,11 @@
 namespace kcsbridge
 {
 
-using sdbusplus::bus::bus;
-using sdbusplus::message::message;
-using sdbusplus::slot::slot;
+using sdbusplus::bus_t;
+using sdbusplus::message_t;
+using sdbusplus::slot_t;
 
-void write(stdplus::Fd& kcs, message&& m)
+void write(stdplus::Fd& kcs, message_t&& m)
 {
     std::array<uint8_t, 1024> buffer;
     std::span<uint8_t> out(buffer.begin(), 3);
@@ -64,7 +64,7 @@ void write(stdplus::Fd& kcs, message&& m)
     stdplus::fd::writeExact(kcs, out);
 }
 
-void read(stdplus::Fd& kcs, bus& bus, slot& outstanding)
+void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding)
 {
     std::array<uint8_t, 1024> buffer;
     auto in = stdplus::fd::read(kcs, buffer);
@@ -90,7 +90,7 @@ void read(stdplus::Fd& kcs, bus& bus, slot& outstanding)
     uint8_t netfn = in[0] >> 2, lun = in[0] & 3, cmd = in[1];
     m.append(netfn, lun, cmd, in.subspan(2), options);
     outstanding = m.call_async(
-        stdplus::exception::ignore([&outstanding, &kcs](message&& m) {
+        stdplus::exception::ignore([&outstanding, &kcs](message_t&& m) {
             outstanding = slot(nullptr);
             write(kcs, std::move(m));
         }));
