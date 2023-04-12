@@ -2,7 +2,7 @@ project(
   'kcsbridge',
   'cpp',
   version: '0.1',
-  meson_version: '>=0.57.0',
+  meson_version: '>=0.58.0',
   default_options: [
     'warning_level=3',
     'cpp_std=c++20',
@@ -19,5 +19,5 @@ if systemd.found()
     output: 'phosphor-ipmi-kcs@.service',
     configuration: conf_data,
     install: true,
-    install_dir: systemd.get_variable(pkgconfig: 'systemdsystemunitdir'))
+    install_dir: systemd.get_variable('systemdsystemunitdir'))
 endif
