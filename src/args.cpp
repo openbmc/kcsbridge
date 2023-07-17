@@ -1,8 +1,8 @@
 #include "args.hpp"
 
-#include <fmt/format.h>
 #include <getopt.h>
 
+#include <format>
 #include <stdexcept>
 
 namespace kcsbridge
@@ -26,10 +26,10 @@ Args::Args(int argc, char* argv[])
                 break;
             case ':':
                 throw std::runtime_error(
-                    fmt::format("Missing argument for `{}`", argv[optind - 1]));
+                    std::format("Missing argument for `{}`", argv[optind - 1]));
                 break;
             default:
-                throw std::runtime_error(fmt::format(
+                throw std::runtime_error(std::format(
                     "Invalid command line argument `{}`", argv[optind - 1]));
         }
     }
