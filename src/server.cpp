@@ -1,6 +1,7 @@
 #include "server.hpp"
 
-#include <fmt/format.h>
+#include "print.hpp"
+
 #include <linux/ipmi_bmc.h>
 
 #include <sdbusplus/exception.hpp>
@@ -8,6 +9,7 @@
 #include <sdbusplus/vtable.hpp>
 #include <stdplus/fd/ops.hpp>
 
+#include <cstdio>
 #include <stdexcept>
 
 namespace kcsbridge
@@ -41,7 +43,7 @@ int methodRsp(sd_bus_message* mptr, void* dataptr, sd_bus_error* error) noexcept
     }
     catch (const std::exception& e)
     {
-        fmt::print(stderr, "Method response failed: {}\n", e.what());
+        std::print(stderr, "Method response failed: {}\n", e.what());
         sd_bus_error_set(error,
                          "xyz.openbmc_project.Common.Error.InternalFailure",
                          "The operation failed internally.");
