@@ -2,7 +2,6 @@
 #include "cmd.hpp"
 #include "server.hpp"
 
-#include <fmt/format.h>
 #include <systemd/sd-daemon.h>
 
 #include <sdbusplus/bus.hpp>
@@ -15,6 +14,8 @@
 #include <stdplus/signal.hpp>
 
 #include <algorithm>
+#include <cstdio>
+#include <format>
 #include <stdexcept>
 #include <string>
 
@@ -36,7 +37,7 @@ int execute(const char* channel)
 
     // Configure basic signal handling
     auto exit_handler = [&event](Signal&, const struct signalfd_siginfo*) {
-        fmt::print(stderr, "Interrupted, Exiting\n");
+        fprintf(stderr, "Interrupted, Exiting\n");
         event.exit(0);
     };
     stdplus::signal::block(SIGINT);
@@ -46,7 +47,7 @@ int execute(const char* channel)
 
     // Open an FD for the KCS channel
     stdplus::ManagedFd kcs = stdplus::fd::open(
-        fmt::format("/dev/{}", channel),
+        std::format("/dev/{}", channel),
         OpenFlags(OpenAccess::ReadWrite).set(OpenFlag::NonBlock));
     sdbusplus::slot_t slot(nullptr);
 
@@ -79,7 +80,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& e)
     {
-        fmt::print(stderr, "FAILED: {}\n", e.what());
+        fprintf(stderr, "FAILED: %s\n", e.what());
         return 1;
     }
 }
