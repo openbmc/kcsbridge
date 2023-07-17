@@ -1,6 +1,6 @@
 #include "cmd.hpp"
 
-#include <fmt/format.h>
+#include "print.hpp"
 
 #include <sdbusplus/bus.hpp>
 #include <sdbusplus/exception.hpp>
@@ -10,6 +10,8 @@
 #include <stdplus/fd/ops.hpp>
 
 #include <array>
+#include <cstdio>
+#include <format>
 #include <map>
 #include <span>
 #include <stdexcept>
@@ -45,7 +47,7 @@ void write(stdplus::Fd& kcs, message_t&& m)
         // netfn needs to be changed to odd in KCS responses
         if (data.size() + 3 > buffer.size())
         {
-            throw std::runtime_error(fmt::format(
+            throw std::runtime_error(std::format(
                 "too large {} > {}", data.size() + 3, buffer.size()));
         }
         buffer[0] = (netfn | 1) << 2;
@@ -57,7 +59,7 @@ void write(stdplus::Fd& kcs, message_t&& m)
     }
     catch (const std::exception& e)
     {
-        fmt::print(stderr, "IPMI response failure: {}\n", e.what());
+        std::print(stderr, "IPMI response failure: {}\n", e.what());
         buffer[0] |= 1 << 2;
         buffer[2] = 0xff;
     }
@@ -74,12 +76,12 @@ void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding)
     }
     if (outstanding)
     {
-        fmt::print(stderr, "Canceling outstanding request\n");
+        std::print(stderr, "Canceling outstanding request\n");
         outstanding = slot_t(nullptr);
     }
     if (in.size() < 2)
     {
-        fmt::print(stderr, "Read too small, ignoring\n");
+        std::print(stderr, "Read too small, ignoring\n");
         return;
     }
     auto m = bus.new_method_call("xyz.openbmc_project.Ipmi.Host",
@@ -91,9 +93,9 @@ void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding)
     m.append(netfn, lun, cmd, in.subspan(2), options);
     outstanding = m.call_async(
         stdplus::exception::ignore([&outstanding, &kcs](message_t&& m) {
-        outstanding = slot_t(nullptr);
-        write(kcs, std::move(m));
-    }));
+            outstanding = slot_t(nullptr);
+            write(kcs, std::move(m));
+        }));
 }
 
 } // namespace kcsbridge
