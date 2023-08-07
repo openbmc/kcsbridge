@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f63530c_9bd582ce",
+        "filename": "src/main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1000163
+      },
+      "writtenOn": "2023-08-07T23:41:46Z",
+      "side": 1,
+      "message": "Is there a reason for not using:\nstd::print(stderr, \"FAILED: {}\\n\", e.what());",
+      "revId": "285caac6f679dee763810a7e45db487b4e549fef",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29f2c4a1_0c880679",
+        "filename": "src/server.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000163
+      },
+      "writtenOn": "2023-08-07T23:41:46Z",
+      "side": 1,
+      "message": "please use std::print instead of fprintf",
+      "range": {
+        "startLine": 44,
+        "startChar": 8,
+        "endLine": 44,
+        "endChar": 15
+      },
+      "revId": "285caac6f679dee763810a7e45db487b4e549fef",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
