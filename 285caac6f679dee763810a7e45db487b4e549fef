@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6e86542b_17d5742e",
+        "filename": "src/main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2023-08-08T00:46:13Z",
+      "side": 1,
+      "message": "Yes, because GCC doesn’t support std::print yet as of GCC-13. \n\nhttps://gcc.gnu.org/wiki/LibstdcxxTodo\nP2093R14 Formatted output\n\nAs you mention, it is a pretty simple change once it is supported in libstdc++.",
+      "parentUuid": "5f63530c_9bd582ce",
+      "revId": "285caac6f679dee763810a7e45db487b4e549fef",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "29f2c4a1_0c880679",
         "filename": "src/server.cpp",
         "patchSetId": 1
