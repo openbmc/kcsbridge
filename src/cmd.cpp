@@ -91,9 +91,9 @@ void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding)
     m.append(netfn, lun, cmd, in.subspan(2), options);
     outstanding = m.call_async(
         stdplus::exception::ignore([&outstanding, &kcs](message_t&& m) {
-            outstanding = slot_t(nullptr);
-            write(kcs, std::move(m));
-        }));
+        outstanding = slot_t(nullptr);
+        write(kcs, std::move(m));
+    }));
 }
 
 } // namespace kcsbridge
