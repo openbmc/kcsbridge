@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f2302dd_fbd8e73a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000733
+      },
+      "writtenOn": "2023-12-05T23:49:21Z",
+      "side": 1,
+      "message": "Looks like the commit message could use an update to drop the stale fprintf reference.",
+      "range": {
+        "startLine": 9,
+        "startChar": 65,
+        "endLine": 10,
+        "endChar": 30
+      },
+      "revId": "00c62c7f718554867eb4fa83a0a281183ab45570",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
