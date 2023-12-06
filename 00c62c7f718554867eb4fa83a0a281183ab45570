@@ -24,6 +24,30 @@
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "19a0d838_5bca1062",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2023-12-06T01:02:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f2302dd_fbd8e73a",
+      "range": {
+        "startLine": 9,
+        "startChar": 65,
+        "endLine": 10,
+        "endChar": 30
+      },
+      "revId": "00c62c7f718554867eb4fa83a0a281183ab45570",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1a927705_77048ae1",
@@ -55,6 +79,24 @@
       "side": 1,
       "message": "\u003e Is this going to break when that comes to pass?\n\nOh though I suppose since nothing\u0027s actually referencing that header yet that should be a trivial \"no\"...",
       "parentUuid": "1a927705_77048ae1",
+      "revId": "00c62c7f718554867eb4fa83a0a281183ab45570",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41cc0bb9_d9a278b0",
+        "filename": "src/print.hpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2023-12-06T01:02:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e9b4630_8364ab77",
       "revId": "00c62c7f718554867eb4fa83a0a281183ab45570",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
