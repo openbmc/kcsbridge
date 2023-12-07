@@ -1,0 +1,8 @@
+Code-Review+1: Zev Weiss <zev@bewilderbeest.net>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Code-Review+2: Vernon Mauery <vernon.mauery@linux.intel.com>
+Submitted-by: Patrick Williams <patrick@stwcx.xyz>
+Submitted-at: Thu, 07 Dec 2023 21:35:22 +0000
+Reviewed-on: https://gerrit.openbmc.org/c/openbmc/kcsbridge/+/65064
+Project: openbmc/kcsbridge
+Branch: refs/heads/master
