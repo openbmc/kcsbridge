@@ -63,9 +63,8 @@ constexpr sdbusplus::vtable::vtable_t dbusMethods[] = {
     sdbusplus::vtable::end(),
 };
 
-sdbusplus::server::interface::interface createSMSHandler(sdbusplus::bus_t& bus,
-                                                         const char* obj,
-                                                         stdplus::Fd& kcs)
+sdbusplus::server::interface::interface createSMSHandler(
+    sdbusplus::bus_t& bus, const char* obj, stdplus::Fd& kcs)
 {
     return sdbusplus::server::interface::interface(
         bus, obj, "xyz.openbmc_project.Ipmi.Channel.SMS",
