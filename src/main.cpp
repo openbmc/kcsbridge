@@ -55,8 +55,9 @@ int execute(const char* channel)
     // Add a reader to the bus for handling inbound IPMI
     IO ioSource(
         event, kcs.get(), EPOLLIN | EPOLLET,
-        stdplus::exception::ignore(
-            [&kcs, &bus, &slot](IO&, int, uint32_t) { read(kcs, bus, slot); }));
+        stdplus::exception::ignore([&kcs, &bus, &slot](IO&, int, uint32_t) {
+            read(kcs, bus, slot);
+        }));
 
     // Allow processes to affect the state machine
     std::string dbusChannel = channel;

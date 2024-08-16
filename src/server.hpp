@@ -6,8 +6,7 @@
 namespace kcsbridge
 {
 
-sdbusplus::server::interface::interface createSMSHandler(sdbusplus::bus_t& bus,
-                                                         const char* obj,
-                                                         stdplus::Fd& kcs);
+sdbusplus::server::interface::interface createSMSHandler(
+    sdbusplus::bus_t& bus, const char* obj, stdplus::Fd& kcs);
 
 }
