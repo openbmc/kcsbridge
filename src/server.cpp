@@ -1,13 +1,12 @@
 #include "server.hpp"
 
-#include "print.hpp"
-
 #include <linux/ipmi_bmc.h>
 
 #include <sdbusplus/exception.hpp>
 #include <sdbusplus/server/interface.hpp>
 #include <sdbusplus/vtable.hpp>
 #include <stdplus/fd/ops.hpp>
+#include <stdplus/print.hpp>
 
 #include <cstdio>
 #include <stdexcept>
@@ -43,7 +42,7 @@ int methodRsp(sd_bus_message* mptr, void* dataptr, sd_bus_error* error) noexcept
     }
     catch (const std::exception& e)
     {
-        std::print(stderr, "Method response failed: {}\n", e.what());
+        stdplus::print(stderr, "Method response failed: {}\n", e.what());
         sd_bus_error_set(error,
                          "xyz.openbmc_project.Common.Error.InternalFailure",
                          "The operation failed internally.");

@@ -1,6 +1,5 @@
 #include "args.hpp"
 #include "cmd.hpp"
-#include "print.hpp"
 #include "server.hpp"
 
 #include <systemd/sd-daemon.h>
@@ -12,6 +11,7 @@
 #include <sdeventplus/source/signal.hpp>
 #include <stdplus/exception.hpp>
 #include <stdplus/fd/create.hpp>
+#include <stdplus/print.hpp>
 #include <stdplus/signal.hpp>
 
 #include <algorithm>
@@ -38,7 +38,7 @@ int execute(const char* channel)
 
     // Configure basic signal handling
     auto exit_handler = [&event](Signal&, const struct signalfd_siginfo*) {
-        std::print(stderr, "Interrupted, Exiting\n");
+        stdplus::print(stderr, "Interrupted, Exiting\n");
         event.exit(0);
     };
     stdplus::signal::block(SIGINT);
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& e)
     {
-        std::print(stderr, "FAILED: {}\n", e.what());
+        stdplus::print(stderr, "FAILED: {}\n", e.what());
         return 1;
     }
 }

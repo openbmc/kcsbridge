@@ -1,13 +1,12 @@
 #include "cmd.hpp"
 
-#include "print.hpp"
-
 #include <sdbusplus/bus.hpp>
 #include <sdbusplus/exception.hpp>
 #include <sdbusplus/message.hpp>
 #include <sdbusplus/slot.hpp>
 #include <stdplus/exception.hpp>
 #include <stdplus/fd/ops.hpp>
+#include <stdplus/print.hpp>
 
 #include <array>
 #include <cstdio>
@@ -59,7 +58,7 @@ void write(stdplus::Fd& kcs, message_t&& m)
     }
     catch (const std::exception& e)
     {
-        std::print(stderr, "IPMI response failure: {}\n", e.what());
+        stdplus::print(stderr, "IPMI response failure: {}\n", e.what());
         buffer[0] |= 1 << 2;
         buffer[2] = 0xff;
     }
@@ -76,12 +75,12 @@ void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding)
     }
     if (outstanding)
     {
-        std::print(stderr, "Canceling outstanding request\n");
+        stdplus::print(stderr, "Canceling outstanding request\n");
         outstanding = slot_t(nullptr);
     }
     if (in.size() < 2)
     {
-        std::print(stderr, "Read too small, ignoring\n");
+        stdplus::print(stderr, "Read too small, ignoring\n");
         return;
     }
     auto m = bus.new_method_call("xyz.openbmc_project.Ipmi.Host",
