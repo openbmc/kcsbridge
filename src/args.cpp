@@ -10,9 +10,10 @@ namespace kcsbridge
 
 Args::Args(int argc, char* argv[])
 {
-    static const char opts[] = ":c:";
+    static const char opts[] = ":c:t:";
     static const struct option longopts[] = {
         {"channel", required_argument, nullptr, 'c'},
+        {"timeout", required_argument, nullptr, 't'},
         {nullptr, 0, nullptr, 0},
     };
     int c;
@@ -23,6 +24,9 @@ Args::Args(int argc, char* argv[])
         {
             case 'c':
                 channel = optarg;
+                break;
+            case 't':
+                timeout = std::stoi(optarg);
                 break;
             case ':':
                 throw std::runtime_error(

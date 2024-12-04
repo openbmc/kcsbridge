@@ -29,7 +29,7 @@ using stdplus::fd::OpenAccess;
 using stdplus::fd::OpenFlag;
 using stdplus::fd::OpenFlags;
 
-int execute(const char* channel)
+int execute(const char* channel, uint64_t timeout = 0)
 {
     // Set up our DBus and event loop
     auto event = sdeventplus::Event::get_default();
@@ -53,11 +53,11 @@ int execute(const char* channel)
     sdbusplus::slot_t slot(nullptr);
 
     // Add a reader to the bus for handling inbound IPMI
-    IO ioSource(
-        event, kcs.get(), EPOLLIN | EPOLLET,
-        stdplus::exception::ignore([&kcs, &bus, &slot](IO&, int, uint32_t) {
-            read(kcs, bus, slot);
-        }));
+    IO ioSource(event, kcs.get(), EPOLLIN | EPOLLET,
+                stdplus::exception::ignore(
+                    [&kcs, &bus, &slot, timeout](IO&, int, uint32_t) {
+                        read(kcs, bus, slot, timeout);
+                    }));
 
     // Allow processes to affect the state machine
     std::string dbusChannel = channel;
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     try
     {
         kcsbridge::Args args(argc, argv);
-        return kcsbridge::execute(args.channel);
+        return kcsbridge::execute(args.channel, args.timeout);
     }
     catch (const std::exception& e)
     {

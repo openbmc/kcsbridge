@@ -25,6 +25,8 @@ namespace kcsbridge
 using sdbusplus::bus_t;
 using sdbusplus::message_t;
 using sdbusplus::slot_t;
+using SdBusDuration =
+    std::chrono::duration<uint64_t, std::chrono::microseconds::period>;
 
 void write(stdplus::Fd& kcs, message_t&& m)
 {
@@ -65,7 +67,7 @@ void write(stdplus::Fd& kcs, message_t&& m)
     stdplus::fd::writeExact(kcs, out);
 }
 
-void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding)
+void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding, uint64_t timeout)
 {
     std::array<uint8_t, 1024> buffer;
     auto in = stdplus::fd::read(kcs, buffer);
@@ -94,7 +96,8 @@ void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding)
         stdplus::exception::ignore([&outstanding, &kcs](message_t&& m) {
             outstanding = slot_t(nullptr);
             write(kcs, std::move(m));
-        }));
+        }),
+        SdBusDuration{timeout});
 }
 
 } // namespace kcsbridge

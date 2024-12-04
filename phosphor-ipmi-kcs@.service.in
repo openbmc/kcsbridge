@@ -6,7 +6,7 @@ After=phosphor-ipmi-host.service
 [Service]
 Type=notify
 Restart=always
-ExecStart=@BIN@ -c "%i"
+ExecStart=@BIN@ -c "%i" -t 0
 SyslogIdentifier=kcsbridged-%i
 
 [Install]
