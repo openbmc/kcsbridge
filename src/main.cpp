@@ -51,12 +51,13 @@ int execute(const char* channel, uint64_t timeout = 0)
         std::format("/dev/{}", channel),
         OpenFlags(OpenAccess::ReadWrite).set(OpenFlag::NonBlock));
     sdbusplus::slot_t slot(nullptr);
+    KCSIn kcsIn{};
 
     // Add a reader to the bus for handling inbound IPMI
     IO ioSource(event, kcs.get(), EPOLLIN | EPOLLET,
                 stdplus::exception::ignore(
-                    [&kcs, &bus, &slot, timeout](IO&, int, uint32_t) {
-                        read(kcs, bus, slot, timeout);
+                    [&kcs, &bus, &slot, &kcsIn, timeout](IO&, int, uint32_t) {
+                        read(kcs, bus, slot, kcsIn, timeout);
                     }));
 
     // Allow processes to affect the state machine

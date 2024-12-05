@@ -28,7 +28,17 @@ using sdbusplus::slot_t;
 using SdBusDuration =
     std::chrono::duration<uint64_t, std::chrono::microseconds::period>;
 
-void write(stdplus::Fd& kcs, message_t&& m)
+static std::string to_string(const KCSIn& kcsIn)
+{
+    const auto& [netfn, lun, cmd, data] = kcsIn;
+
+    // security: data is not printed (it could contain passwords)
+    return std::format("netfn: 0x{:02x}, lun: 0x{:02x}, cmd: 0x{:02x}, "
+                       "data size: {}",
+                       netfn, lun, cmd, data.size());
+}
+
+void write(stdplus::Fd& kcs, message_t&& m, const KCSIn& kcsIn)
 {
     std::array<uint8_t, 1024> buffer;
     std::span<uint8_t> out(buffer.begin(), 3);
@@ -60,14 +70,16 @@ void write(stdplus::Fd& kcs, message_t&& m)
     }
     catch (const std::exception& e)
     {
-        stdplus::print(stderr, "IPMI response failure: {}\n", e.what());
+        stdplus::print(stderr, "Req {}: IPMI response failure: {}\n",
+                       to_string(kcsIn), e.what());
         buffer[0] |= 1 << 2;
         buffer[2] = 0xff;
     }
     stdplus::fd::writeExact(kcs, out);
 }
 
-void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding, uint64_t timeout)
+void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding, KCSIn& kcsIn,
+          uint64_t timeout)
 {
     std::array<uint8_t, 1024> buffer;
     auto in = stdplus::fd::read(kcs, buffer);
@@ -77,7 +89,8 @@ void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding, uint64_t timeout)
     }
     if (outstanding)
     {
-        stdplus::print(stderr, "Canceling outstanding request\n");
+        stdplus::print(stderr, "Canceling outstanding request {}\n",
+                       to_string(kcsIn));
         outstanding = slot_t(nullptr);
     }
     if (in.size() < 2)
@@ -92,12 +105,18 @@ void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding, uint64_t timeout)
     // Based on the IPMI KCS spec Figure 9-1
     uint8_t netfn = in[0] >> 2, lun = in[0] & 3, cmd = in[1];
     m.append(netfn, lun, cmd, in.subspan(2), options);
+    kcsIn = {netfn, lun, cmd, std::vector<uint8_t>(in.begin() + 2, in.end())};
     outstanding = m.call_async(
-        stdplus::exception::ignore([&outstanding, &kcs](message_t&& m) {
+        stdplus::exception::ignore([&outstanding, &kcs, kcsIn](message_t&& m) {
             outstanding = slot_t(nullptr);
-            write(kcs, std::move(m));
+            write(kcs, std::move(m), kcsIn);
         }),
         SdBusDuration{timeout});
+    if (!outstanding)
+    {
+        stdplus::print(stderr, "Failed to send request {}\n", to_string(kcsIn));
+        kcsIn = {};
+    }
 }
 
 } // namespace kcsbridge
