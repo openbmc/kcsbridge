@@ -38,9 +38,9 @@ void write(stdplus::Fd& kcs, message_t&& m)
             auto error = *m.get_error();
             throw sdbusplus::exception::SdBusError(&error, "ipmid response");
         }
-        std::tuple<uint8_t, uint8_t, uint8_t, uint8_t, std::vector<uint8_t>>
-            ret;
-        m.read(ret);
+        auto ret = m.unpack<std::tuple<uint8_t, uint8_t, uint8_t, uint8_t,
+                                       std::vector<uint8_t>>>();
+
         const auto& [netfn, lun, cmd, cc, data] = ret;
         // Based on the IPMI KCS spec Figure 9-2
         // netfn needs to be changed to odd in KCS responses
