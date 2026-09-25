@@ -50,7 +50,7 @@ int execute(const char* channel)
     stdplus::ManagedFd kcs = stdplus::fd::open(
         std::format("/dev/{}", channel),
         OpenFlags(OpenAccess::ReadWrite).set(OpenFlag::NonBlock));
-    sdbusplus::slot_t slot(nullptr);
+    sdbusplus::slot slot(nullptr);
 
     // Add a reader to the bus for handling inbound IPMI
     IO ioSource(
