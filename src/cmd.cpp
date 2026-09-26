@@ -24,7 +24,7 @@ namespace kcsbridge
 
 using sdbusplus::bus_t;
 using sdbusplus::message_t;
-using sdbusplus::slot_t;
+using sdbusplus::slot;
 
 void write(stdplus::Fd& kcs, message_t&& m)
 {
@@ -65,7 +65,7 @@ void write(stdplus::Fd& kcs, message_t&& m)
     stdplus::fd::writeExact(kcs, out);
 }
 
-void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding)
+void read(stdplus::Fd& kcs, bus_t& bus, slot& outstanding)
 {
     std::array<uint8_t, 1024> buffer;
     auto in = stdplus::fd::read(kcs, buffer);
@@ -76,7 +76,7 @@ void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding)
     if (outstanding)
     {
         stdplus::print(stderr, "Canceling outstanding request\n");
-        outstanding = slot_t(nullptr);
+        outstanding = slot(nullptr);
     }
     if (in.size() < 2)
     {
@@ -92,7 +92,7 @@ void read(stdplus::Fd& kcs, bus_t& bus, slot_t& outstanding)
     m.append(netfn, lun, cmd, in.subspan(2), options);
     outstanding = m.call_async(
         stdplus::exception::ignore([&outstanding, &kcs](message_t&& m) {
-            outstanding = slot_t(nullptr);
+            outstanding = slot(nullptr);
             write(kcs, std::move(m));
         }));
 }
